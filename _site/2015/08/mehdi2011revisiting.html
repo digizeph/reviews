@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="en-us">
+
+  <head>
+  <link href="http://gmpg.org/xfn/11" rel="profile">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+
+  <!-- Enable responsiveness on mobile devices-->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+
+  <title>
+    
+      Review: Revisiting Traffic Anomaly Detection using Software Defined Networking &middot; Reviews
+    
+  </title>
+
+  <!-- CSS -->
+  <link rel="stylesheet" href="/reviews/css/poole.css">
+  <link rel="stylesheet" href="/reviews/css/syntax.css">
+  <link rel="stylesheet" href="/reviews/css/lanyon.css">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=PT+Serif:400,400italic,700%7CPT+Sans:400">
+
+  <!-- Icons -->
+  <link rel="shortcut icon" href="/favicon.png">
+
+  <!-- RSS -->
+  <link rel="alternate" type="application/rss+xml" title="RSS" href="/feed.xml">
+</head>
+
+
+  <body>
+
+    <!-- Target for toggling the sidebar `.sidebar-checkbox` is for regular
+     styles, `#sidebar-checkbox` for behavior. -->
+<input type="checkbox" class="sidebar-checkbox" id="sidebar-checkbox">
+
+<!-- Toggleable sidebar -->
+<div class="sidebar" id="sidebar">
+  <div class="sidebar-item">
+    <p>Review on network and security papers.</p>
+  </div>
+
+  <nav class="sidebar-nav">
+    <a class="sidebar-nav-item" href="/reviews/">Home</a>
+
+    
+
+    
+    
+      
+    
+      
+        
+      
+    
+
+  </nav>
+
+  <div class="sidebar-item">
+    <p>
+      &copy; 2015. All rights reserved.
+    </p>
+    <p>
+    No. Just kidding.
+    </p>
+  </div>
+</div>
+
+
+    <!-- Wrap is the content to shift when toggling the sidebar. We wrap the
+         content to avoid any CSS collisions with our real content. -->
+    <div class="wrap">
+      <div class="masthead">
+        <div class="container">
+          <h3 class="masthead-title">
+            <a href="/reviews/" title="Home">Reviews</a>
+            <small>My reviews of academic papers.</small>
+          </h3>
+        </div>
+      </div>
+
+      <div class="container content">
+        <div class="post">
+  <h1 class="post-title">Review: Revisiting Traffic Anomaly Detection using Software Defined Networking</h1>
+  <span class="post-date">30 Aug 2015</span>
+  <h2 id="anomaly-detection-in-data-plane">Anomaly Detection in Data Plane</h2>
+<p>The data plane anomaly detection can be deployed at core network,
+or at end-point network.</p>
+
+<p>The paper [mehdi2011revisiting] argues that the deployment of ADS at core network suffers from the following two problems:</p>
+
+<ul>
+  <li>low detection rate</li>
+  <li>slow in processing speed</li>
+</ul>
+
+<p>These two problems disabled ADS from being deployed at core network.
+As a result, the deployment schemes should be then more focused on end-point networks.</p>
+
+<h2 id="anomaly-detection-algorithms">Anomaly Detection Algorithms</h2>
+
+<p>There are four algorithms mentioned and implemented in this paper.</p>
+
+<h3 id="threshold-random-walk-with-credit-based-rate-limiting">Threshold Random Walk with Credit Based Rate Limiting</h3>
+
+<p>The key idea of this algorithm is to keep track of all the un-established TCP handshakes.
+The timed out handshakes or RSTs will result in an increment of suspicious value.
+The higher the suspicious values are, the lower the rate will be limited to.</p>
+
+<h3 id="rate-limiting">Rate Limiting</h3>
+
+<p>Delay all new connections unless they are in working set.
+Only install rules if the traffic successfully finished the handshakes.</p>
+
+<h3 id="maximum-entropy-detector">Maximum Entropy Detector</h3>
+
+<p>The method is divided into training phase and operation phase.
+During the training phase, the algorithm use maximum entropy estimation to establish a based line benign distribution for each class of packets (2,348 classes in total).</p>
+
+<p>Then during the operation phase, use Kullback-Leibler divergence measure of estimate the entropy.
+An alarm is raised if a packet KL divergence exceeds a threshold K, more than H times in the last W windows.</p>
+
+<p>The maximum entropy detector requires to examine <strong>all packets</strong>.</p>
+
+<h3 id="netad">NETAD</h3>
+
+<p>NETAD is a rule-based filtering method that can filter out <em>“uinterested traffic”</em>.
+During implementation, each new packets will be passed to the controller, and the controller check the rules.
+If the packet passes the rules, then the corresponding flows will be added to the switch to allow the traffic passing through.</p>
+
+<p>This method also requires to examine <strong>all packets</strong>.</p>
+
+<h2 id="data-set">Data Set</h2>
+
+<blockquote>
+  <p>We decided to collect our own benign and attack
+datasets and make them available for repeatable performance evaluations.</p>
+</blockquote>
+
+<h3 id="benign-traffic">Benign Traffic</h3>
+
+<p>The benign traffic was collected in three different locations:</p>
+
+<ul>
+  <li>Home Network</li>
+  <li>Small Office/ Home Office (SOHO)</li>
+  <li>Internet Service Provider</li>
+</ul>
+
+<h3 id="attack-traffic">Attack Traffic</h3>
+
+<blockquote>
+  <p>we launched (TCP SYN), DoS (TCP SYN)
+and fraggle (UDP flood) simultaneously from three end hosts in our research lab.</p>
+</blockquote>
+
+<h2 id="result">Result</h2>
+
+<p>The evaluation result shows that the deployment scheme at end-point networks has better accuracy than on ISP. 
+The result details shown in the figure below.</p>
+
+<p><a href="http://i.imgur.com/ywQx9nN.png"><img src="http://i.imgur.com/ywQx9nN.png" alt="result" /></a></p>
+
+<p>The authors also evaluated the implement on efficiency on the four parameters:</p>
+
+<ul>
+  <li>Percent of total packets that pass through the controller</li>
+  <li>Average rate of packets passing through the controller</li>
+  <li>Average number of flows in the switch’s flow table</li>
+  <li>Peak size of the switch’s flow table</li>
+</ul>
+
+<p>The result is shown below.</p>
+
+<p><a href="http://i.imgur.com/2DQk49r.png"><img src="http://i.imgur.com/2DQk49r.png" alt="efficiency" /></a></p>
+
+<p>Bib entry:</p>
+
+<p><code>
+@article{Mehdi2011,
+	author = {Mehdi, Syed Akbar and Khalid, Junaid and Khayam, Syed Ali},
+	isbn = {978-3-642-23643-3},
+	issn = {0302-9743},
+	journal = {Entropy},
+	keywords = {anomaly detection,network security,openflow,programmable networks,software defined net,working},
+	pages = {1--20},
+	title = ,
+	volume = {6961},
+	year = {2011}
+}
+</code></p>
+
+</div>
+
+<!--
+<div class="related">
+  <h2>Related Posts</h2>
+  <ul class="related-posts">
+    
+      <li>
+        <h3>
+          <a href="/reviews/2015/09/shin2013avant-guard.html">
+            Review: Avant-guard: Scalable and vigilant switch flow management in software-defined networks
+            <small>04 Sep 2015</small>
+          </a>
+        </h3>
+      </li>
+    
+      <li>
+        <h3>
+          <a href="/reviews/2015/09/dhawan2015sphinx.html">
+            Review: SPHINX: Detecting Security Attacks in Software-Defined Networks
+            <small>04 Sep 2015</small>
+          </a>
+        </h3>
+      </li>
+    
+      <li>
+        <h3>
+          <a href="/reviews/2015/08/vervier2014malicious.html">
+            Review: Malicious BGP Hijacks : Appearances Can Be Deceiving
+            <small>28 Aug 2015</small>
+          </a>
+        </h3>
+      </li>
+    
+  </ul>
+</div>
+-->
+
+
+<div id="disqus_thread"></div>
+<script type="text/javascript">
+    /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+    var disqus_shortname = 'digizeph'; // required: replace example with your forum shortname
+    /* * * DON'T EDIT BELOW THIS LINE * * */
+    (function() {
+        var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+        dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+        (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+
+
+
+      </div>
+    </div>
+
+    <label for="sidebar-checkbox" class="sidebar-toggle"></label>
+
+    <script>
+      (function(document) {
+        var toggle = document.querySelector('.sidebar-toggle');
+        var sidebar = document.querySelector('#sidebar');
+        var checkbox = document.querySelector('#sidebar-checkbox');
+
+        document.addEventListener('click', function(e) {
+          var target = e.target;
+
+          if(!checkbox.checked ||
+             sidebar.contains(target) ||
+             (target === checkbox || target === toggle)) return;
+
+          checkbox.checked = false;
+        }, false);
+      })(document);
+    </script>
+  </body>
+
+  <script>
+    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+        (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+            m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+    })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+    ga('create', 'UA-44747901-3', 'auto');
+    ga('send', 'pageview');
+
+</script>
+
+</html>

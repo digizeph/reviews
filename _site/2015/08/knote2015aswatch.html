@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en-us">
+
+  <head>
+  <link href="http://gmpg.org/xfn/11" rel="profile">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+
+  <!-- Enable responsiveness on mobile devices-->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+
+  <title>
+    
+      Review: ASWatch - An AS Reputation System to Expose Bulletproof Hosting ASes &middot; Reviews
+    
+  </title>
+
+  <!-- CSS -->
+  <link rel="stylesheet" href="/reviews/css/poole.css">
+  <link rel="stylesheet" href="/reviews/css/syntax.css">
+  <link rel="stylesheet" href="/reviews/css/lanyon.css">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=PT+Serif:400,400italic,700%7CPT+Sans:400">
+
+  <!-- Icons -->
+  <link rel="shortcut icon" href="/favicon.png">
+
+  <!-- RSS -->
+  <link rel="alternate" type="application/rss+xml" title="RSS" href="/feed.xml">
+</head>
+
+
+  <body>
+
+    <!-- Target for toggling the sidebar `.sidebar-checkbox` is for regular
+     styles, `#sidebar-checkbox` for behavior. -->
+<input type="checkbox" class="sidebar-checkbox" id="sidebar-checkbox">
+
+<!-- Toggleable sidebar -->
+<div class="sidebar" id="sidebar">
+  <div class="sidebar-item">
+    <p>Review on network and security papers.</p>
+  </div>
+
+  <nav class="sidebar-nav">
+    <a class="sidebar-nav-item" href="/reviews/">Home</a>
+
+    
+
+    
+    
+      
+    
+      
+        
+      
+    
+
+  </nav>
+
+  <div class="sidebar-item">
+    <p>
+      &copy; 2015. All rights reserved.
+    </p>
+    <p>
+    No. Just kidding.
+    </p>
+  </div>
+</div>
+
+
+    <!-- Wrap is the content to shift when toggling the sidebar. We wrap the
+         content to avoid any CSS collisions with our real content. -->
+    <div class="wrap">
+      <div class="masthead">
+        <div class="container">
+          <h3 class="masthead-title">
+            <a href="/reviews/" title="Home">Reviews</a>
+            <small>My reviews of academic papers.</small>
+          </h3>
+        </div>
+      </div>
+
+      <div class="container content">
+        <div class="post">
+  <h1 class="post-title">Review: ASWatch - An AS Reputation System to Expose Bulletproof Hosting ASes</h1>
+  <span class="post-date">25 Aug 2015</span>
+  <p>This paper introduces ASWatch,
+a control-plane passive monitoring system that can identify malicious autonomous systems (ASes) with high accuracy.
+The system learns features of ASes from the BGP updates and
+defines normality using statistic features.</p>
+
+<h2 id="malicious-and-legitimate-ases">Malicious and Legitimate ASes</h2>
+
+<p>The authors define the <strong>malicious ASes</strong> as those who are managed by cyber-criminals,
+and with a main purpose of supporting illicit network activities.
+The activities include but not limited as phishing, malware distribution, botnets, spamming etc.
+The authors also define the term <strong>malicious AS relation</strong>, 
+as the relationship between a malicious AS and its “masking ASes”,
+i.e. the providers of the malicious ASes.</p>
+
+<p>The authors define the <strong>legitiamte ASes</strong> as those to provide legitimate Internet services.
+Note that a legitimate AS could also be abused for malicious activities, 
+but the authors consider those cases rare situations and not treat the ASes as malicious.</p>
+
+<p>The main goal of this paper is to correctly identify the malicious ASes,
+and separate them from the legitimate ASes.
+The authors use the top 1,000 Alexa websites’ ASes as a ground truth for legitimate ASes.</p>
+
+<h2 id="methodology">Methodology</h2>
+
+<p>The system architecture is shown below.
+ASWatch has a typical training and operating cycle of a monitoring system.</p>
+
+<p>During the training duration,
+ASWatch will use the ground truth knowledge and the existing relationship data 
+to extract <strong>labeled feature vectors</strong> for a supervised statistical training.
+The trained model will then be used to identify malicious ASes.</p>
+
+<p>During the operational phase, the ASWatch takes in a sliding window of BGP snapshots,
+and using the data to calculate the corresponding features vectors.
+Through the comparison of the feature vectors with the learned model,
+ASWatch can give out a <strong>bad reputation score</strong>.
+A malicious AS is identified if the bad reputation score is higher than 90%
+during the sliding window.</p>
+
+<p><a href="http://i.imgur.com/vEk3BCv.png"><img src="http://i.imgur.com/vEk3BCv.png" alt="architecture" /></a></p>
+
+<h2 id="results">Results</h2>
+
+<p>The detection false positive rate was kept around 5%, 
+which the author argue was a pretty good result.</p>
+
+<p><a href="http://i.imgur.com/9JuNyCe.png"><img src="http://i.imgur.com/9JuNyCe.png" alt="false positive" /></a></p>
+
+<p>Here are some main results:</p>
+
+<ul>
+  <li>accuracy ~93.3%</li>
+  <li>three years’ evaluation revealed 72% true positive</li>
+  <li>around 50 to 60 days detection before the public media</li>
+  <li>re-wiring features are the most important
+    <ul>
+      <li>re-wiring features represents the <strong>instability frequency</strong> of ASes</li>
+      <li>using only re-wiring features have around the same result</li>
+      <li>without re-wiring feature, the accuracy dropped dramatically</li>
+    </ul>
+  </li>
+  <li>the results are not sensitive to the parameter tuning</li>
+</ul>
+
+<p>Compare to BGP Ranking, ASWatch achieves much better results.</p>
+
+<p><a href="http://i.imgur.com/wa981ZW.png"><img src="http://i.imgur.com/wa981ZW.png" alt="bgpranking" /></a></p>
+
+<h2 id="conclusion">Conclusion</h2>
+
+<p>ASWatch serves as a <strong>ranking system for ASes</strong>,
+uses <strong>passive control-plane</strong> monitoring data,
+relies on <strong>re-wiring features</strong> to identify malicious ASes.</p>
+
+<p>Bib entry:</p>
+
+<pre><code>@inproceedings{konte2015aswatch,
+    title={ASwatch: An AS Reputation System to Expose Bulletproof Hosting ASes},
+    author={Konte, Maria and Perdisci, Roberto and Feamster, Nick},
+    booktitle={Proceedings of the 2015 ACM Conference on Special Interest Group on Data Communication},
+    pages={625--638},
+    year={2015},
+    organization={ACM}
+}
+</code></pre>
+
+
+</div>
+
+<!--
+<div class="related">
+  <h2>Related Posts</h2>
+  <ul class="related-posts">
+    
+      <li>
+        <h3>
+          <a href="/reviews/2015/09/shin2013avant-guard.html">
+            Review: Avant-guard: Scalable and vigilant switch flow management in software-defined networks
+            <small>04 Sep 2015</small>
+          </a>
+        </h3>
+      </li>
+    
+      <li>
+        <h3>
+          <a href="/reviews/2015/09/dhawan2015sphinx.html">
+            Review: SPHINX: Detecting Security Attacks in Software-Defined Networks
+            <small>04 Sep 2015</small>
+          </a>
+        </h3>
+      </li>
+    
+      <li>
+        <h3>
+          <a href="/reviews/2015/08/mehdi2011revisiting.html">
+            Review: Revisiting Traffic Anomaly Detection using Software Defined Networking
+            <small>30 Aug 2015</small>
+          </a>
+        </h3>
+      </li>
+    
+  </ul>
+</div>
+-->
+
+
+<div id="disqus_thread"></div>
+<script type="text/javascript">
+    /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+    var disqus_shortname = 'digizeph'; // required: replace example with your forum shortname
+    /* * * DON'T EDIT BELOW THIS LINE * * */
+    (function() {
+        var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+        dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+        (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+
+
+
+      </div>
+    </div>
+
+    <label for="sidebar-checkbox" class="sidebar-toggle"></label>
+
+    <script>
+      (function(document) {
+        var toggle = document.querySelector('.sidebar-toggle');
+        var sidebar = document.querySelector('#sidebar');
+        var checkbox = document.querySelector('#sidebar-checkbox');
+
+        document.addEventListener('click', function(e) {
+          var target = e.target;
+
+          if(!checkbox.checked ||
+             sidebar.contains(target) ||
+             (target === checkbox || target === toggle)) return;
+
+          checkbox.checked = false;
+        }, false);
+      })(document);
+    </script>
+  </body>
+
+  <script>
+    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+        (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+            m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+    })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+    ga('create', 'UA-44747901-3', 'auto');
+    ga('send', 'pageview');
+
+</script>
+
+</html>

@@ -1,0 +1,22 @@
+# Permalinks
+#
+# Use of `relative_permalinks` ensures post links from the index work properly.
+permalink:           :year/:month/:title.html
+relative_permalinks: true
+
+# Setup
+title:               Reviews
+tagline:             'My reviews of academic papers.'
+description:         'Review on network and security papers.'
+url:                 http://mwzhang.com
+baseurl:             '/reviews'
+paginate:            5
+
+# About/contact
+author:
+  name:              Mingwei Zhang
+  url:               https://twitter.com/digizeph
+  email:             digizeph@gmail.com
+
+# Custom vars
+version:             1.0.0

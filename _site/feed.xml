@@ -1,0 +1,775 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Reviews</title>
+    <description>Review on network and security papers.</description>
+    <link>http://mwzhang.com/reviews/</link>
+    <atom:link href="http://mwzhang.com/reviews/feed.xml" rel="self" type="application/rss+xml" />
+    <pubDate>Sun, 06 Sep 2015 16:28:03 -0500</pubDate>
+    <lastBuildDate>Sun, 06 Sep 2015 16:28:03 -0500</lastBuildDate>
+    <generator>Jekyll v2.4.0</generator>
+    
+      <item>
+        <title>Review: Avant-guard: Scalable and vigilant switch flow management in software-defined networks</title>
+        <description>&lt;p&gt;&lt;strong&gt;Avant-guard&lt;/strong&gt; propose two ideas in the paper:&lt;/p&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;Connection migration&lt;/li&gt;
+  &lt;li&gt;Condition triggers for rule processing&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;h2 id=&quot;connection-migration&quot;&gt;Connection Migration&lt;/h2&gt;
+
+&lt;p&gt;The connection migration box mainly focused on solving the problems of SYN flood in SDN environment.
+The SYN flood will trigger a &lt;code&gt;packet_in&lt;/code&gt; message flood from the SDN switch to SDN controller.
+While the SDN switch waiting for the reply from the SDN controller,
+the cache of the switch is vulnerable to exhaustion and thus could potentially crash the switch entirely.&lt;/p&gt;
+
+&lt;p&gt;The main idea of solving this problem is to process the TCP SYN separately.
+It will first classify the traffic and remove all unrecognized TCP FIN or RST packets.
+Then the migration box itself will do the handshake with the source.
+After a full handshake, it will then report to the controller and make connection with the real destination.
+After the controller replies, the migration box will work as a relay, forwarding all the traffic to the destination.
+&lt;strong&gt;Essentially, the migration box works as a men-in-the-middle, and filter out SYN flood messages without involving the controller.&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;The delaying mode of the connection migration only start the contacting the controller when it receives the traffic content after the handshake.&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;Standard connection migration scenario:&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;a href=&quot;http://i.imgur.com/7cGUTxX.png&quot;&gt;&lt;img src=&quot;http://i.imgur.com/7cGUTxX.png&quot; alt=&quot;mc&quot; /&gt;&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;Standard connection migration delay mode scenario:&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;a href=&quot;http://i.imgur.com/6npXjQe.png&quot;&gt;&lt;img src=&quot;http://i.imgur.com/6npXjQe.png&quot; alt=&quot;mcdelay&quot; /&gt;&lt;/a&gt;&lt;/p&gt;
+
+&lt;h2 id=&quot;actuating-trigger&quot;&gt;Actuating Trigger&lt;/h2&gt;
+
+&lt;p&gt;The idea of the &lt;code&gt;actuating trigger&lt;/code&gt; is simple as putting a condition check in SDN switch.
+After the matching of flows complete, the SDN switch will also collect some basic statistics and check the condition.
+If the condition is met, the SDN switch will run a call-back function that can notify and react to the situation.&lt;/p&gt;
+
+&lt;p&gt;This idea can be used for close-to-real-time anomaly detection without pulling/polling the switches. 
+However, this design requires changes to the existing SDN switches and adds additional component in between the flow processing procedure, and thus could face hurdles in deployment.&lt;/p&gt;
+
+&lt;p&gt;Here is an example scenario of the actuating trigger:&lt;/p&gt;
+
+&lt;p&gt;&lt;a href=&quot;http://i.imgur.com/sHEuvAa.png&quot;&gt;&lt;img src=&quot;http://i.imgur.com/sHEuvAa.png&quot; alt=&quot;trigger&quot; /&gt;&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;Bib entry:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;@article{shin2013avant-guard,
+	author = {Shin, S and Yegneswaran, V and Porras, P and Gu, G},
+	isbn = {9781450324779},
+	journal = {Proceedings of the 2013 ACM \ldots}
+	title = 
+	year = {2013}
+}
+&lt;/code&gt;&lt;/pre&gt;
+</description>
+        <pubDate>Fri, 04 Sep 2015 00:00:00 -0500</pubDate>
+        <link>http://mwzhang.com/reviews/2015/09/shin2013avant-guard.html</link>
+        <guid isPermaLink="true">http://mwzhang.com/reviews/2015/09/shin2013avant-guard.html</guid>
+        
+        <category>SDN</category>
+        
+        <category>security</category>
+        
+        
+        <category>paper review</category>
+        
+      </item>
+    
+      <item>
+        <title>Review: SPHINX: Detecting Security Attacks in Software-Defined Networks</title>
+        <description>&lt;p&gt;SPHINX is a anomaly detection application that sit in between the SDN controller and the SDN switches.
+SPHINX aims to construct a trust-worthy topology graph, &lt;em&gt;flow graph&lt;/em&gt;, using the controller’s OpenFlow messages,
+and detect anomalous messages from the SDN swithches using such graph.&lt;/p&gt;
+
+&lt;h2 id=&quot;theat-model&quot;&gt;Theat Model&lt;/h2&gt;
+
+&lt;p&gt;The OpenFlow messges from the controller to the switches are trustworthy.
+But all the messages from the switches to the controller could be forged by a malicious switch or in some cases by the hosts.&lt;/p&gt;
+
+&lt;h2 id=&quot;flow-graph&quot;&gt;Flow Graph&lt;/h2&gt;
+
+&lt;p&gt;The flow graph is constructed only using &lt;code&gt;FLOW_MOD&lt;/code&gt; messages issued by the trusted controller.&lt;/p&gt;
+
+&lt;p&gt;The procedure is as the follows:&lt;/p&gt;
+
+&lt;p&gt;&lt;a href=&quot;http://i.imgur.com/uJVbNbF.png&quot;&gt;&lt;img src=&quot;http://i.imgur.com/uJVbNbF.png&quot; alt=&quot;flowgraph&quot; /&gt;&lt;/a&gt;&lt;/p&gt;
+
+&lt;h2 id=&quot;sphinx&quot;&gt;SPHINX&lt;/h2&gt;
+
+&lt;p&gt;With the flow graph built, the SPHINX raises alerts when it detects untrusted entities triggering &lt;em&gt;changes&lt;/em&gt; to existing flow behavior,
+or the flow violates any administrator-specified security policy.&lt;/p&gt;
+
+&lt;p&gt;&lt;a href=&quot;http://i.imgur.com/2Ae1z7z.png&quot;&gt;&lt;img src=&quot;http://i.imgur.com/2Ae1z7z.png&quot; alt=&quot;sphinx&quot; /&gt;&lt;/a&gt;&lt;/p&gt;
+
+</description>
+        <pubDate>Fri, 04 Sep 2015 00:00:00 -0500</pubDate>
+        <link>http://mwzhang.com/reviews/2015/09/dhawan2015sphinx.html</link>
+        <guid isPermaLink="true">http://mwzhang.com/reviews/2015/09/dhawan2015sphinx.html</guid>
+        
+        <category>SDN</category>
+        
+        <category>security</category>
+        
+        
+        <category>paper review</category>
+        
+      </item>
+    
+      <item>
+        <title>Review: Revisiting Traffic Anomaly Detection using Software Defined Networking</title>
+        <description>&lt;h2 id=&quot;anomaly-detection-in-data-plane&quot;&gt;Anomaly Detection in Data Plane&lt;/h2&gt;
+&lt;p&gt;The data plane anomaly detection can be deployed at core network,
+or at end-point network.&lt;/p&gt;
+
+&lt;p&gt;The paper [mehdi2011revisiting] argues that the deployment of ADS at core network suffers from the following two problems:&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;low detection rate&lt;/li&gt;
+  &lt;li&gt;slow in processing speed&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;These two problems disabled ADS from being deployed at core network.
+As a result, the deployment schemes should be then more focused on end-point networks.&lt;/p&gt;
+
+&lt;h2 id=&quot;anomaly-detection-algorithms&quot;&gt;Anomaly Detection Algorithms&lt;/h2&gt;
+
+&lt;p&gt;There are four algorithms mentioned and implemented in this paper.&lt;/p&gt;
+
+&lt;h3 id=&quot;threshold-random-walk-with-credit-based-rate-limiting&quot;&gt;Threshold Random Walk with Credit Based Rate Limiting&lt;/h3&gt;
+
+&lt;p&gt;The key idea of this algorithm is to keep track of all the un-established TCP handshakes.
+The timed out handshakes or RSTs will result in an increment of suspicious value.
+The higher the suspicious values are, the lower the rate will be limited to.&lt;/p&gt;
+
+&lt;h3 id=&quot;rate-limiting&quot;&gt;Rate Limiting&lt;/h3&gt;
+
+&lt;p&gt;Delay all new connections unless they are in working set.
+Only install rules if the traffic successfully finished the handshakes.&lt;/p&gt;
+
+&lt;h3 id=&quot;maximum-entropy-detector&quot;&gt;Maximum Entropy Detector&lt;/h3&gt;
+
+&lt;p&gt;The method is divided into training phase and operation phase.
+During the training phase, the algorithm use maximum entropy estimation to establish a based line benign distribution for each class of packets (2,348 classes in total).&lt;/p&gt;
+
+&lt;p&gt;Then during the operation phase, use Kullback-Leibler divergence measure of estimate the entropy.
+An alarm is raised if a packet KL divergence exceeds a threshold K, more than H times in the last W windows.&lt;/p&gt;
+
+&lt;p&gt;The maximum entropy detector requires to examine &lt;strong&gt;all packets&lt;/strong&gt;.&lt;/p&gt;
+
+&lt;h3 id=&quot;netad&quot;&gt;NETAD&lt;/h3&gt;
+
+&lt;p&gt;NETAD is a rule-based filtering method that can filter out &lt;em&gt;“uinterested traffic”&lt;/em&gt;.
+During implementation, each new packets will be passed to the controller, and the controller check the rules.
+If the packet passes the rules, then the corresponding flows will be added to the switch to allow the traffic passing through.&lt;/p&gt;
+
+&lt;p&gt;This method also requires to examine &lt;strong&gt;all packets&lt;/strong&gt;.&lt;/p&gt;
+
+&lt;h2 id=&quot;data-set&quot;&gt;Data Set&lt;/h2&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;We decided to collect our own benign and attack
+datasets and make them available for repeatable performance evaluations.&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;h3 id=&quot;benign-traffic&quot;&gt;Benign Traffic&lt;/h3&gt;
+
+&lt;p&gt;The benign traffic was collected in three different locations:&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;Home Network&lt;/li&gt;
+  &lt;li&gt;Small Office/ Home Office (SOHO)&lt;/li&gt;
+  &lt;li&gt;Internet Service Provider&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3 id=&quot;attack-traffic&quot;&gt;Attack Traffic&lt;/h3&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;we launched (TCP SYN), DoS (TCP SYN)
+and fraggle (UDP flood) simultaneously from three end hosts in our research lab.&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;h2 id=&quot;result&quot;&gt;Result&lt;/h2&gt;
+
+&lt;p&gt;The evaluation result shows that the deployment scheme at end-point networks has better accuracy than on ISP. 
+The result details shown in the figure below.&lt;/p&gt;
+
+&lt;p&gt;&lt;a href=&quot;http://i.imgur.com/ywQx9nN.png&quot;&gt;&lt;img src=&quot;http://i.imgur.com/ywQx9nN.png&quot; alt=&quot;result&quot; /&gt;&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;The authors also evaluated the implement on efficiency on the four parameters:&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;Percent of total packets that pass through the controller&lt;/li&gt;
+  &lt;li&gt;Average rate of packets passing through the controller&lt;/li&gt;
+  &lt;li&gt;Average number of flows in the switch’s flow table&lt;/li&gt;
+  &lt;li&gt;Peak size of the switch’s flow table&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;The result is shown below.&lt;/p&gt;
+
+&lt;p&gt;&lt;a href=&quot;http://i.imgur.com/2DQk49r.png&quot;&gt;&lt;img src=&quot;http://i.imgur.com/2DQk49r.png&quot; alt=&quot;efficiency&quot; /&gt;&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;Bib entry:&lt;/p&gt;
+
+&lt;p&gt;&lt;code&gt;
+@article{Mehdi2011,
+	author = {Mehdi, Syed Akbar and Khalid, Junaid and Khayam, Syed Ali},
+	isbn = {978-3-642-23643-3},
+	issn = {0302-9743},
+	journal = {Entropy},
+	keywords = {anomaly detection,network security,openflow,programmable networks,software defined net,working},
+	pages = {1--20},
+	title = ,
+	volume = {6961},
+	year = {2011}
+}
+&lt;/code&gt;&lt;/p&gt;
+</description>
+        <pubDate>Sun, 30 Aug 2015 00:00:00 -0500</pubDate>
+        <link>http://mwzhang.com/reviews/2015/08/mehdi2011revisiting.html</link>
+        <guid isPermaLink="true">http://mwzhang.com/reviews/2015/08/mehdi2011revisiting.html</guid>
+        
+        <category>SDN</category>
+        
+        <category>security</category>
+        
+        <category>anomaly detection</category>
+        
+        
+        <category>paper review</category>
+        
+        <category>sdn</category>
+        
+      </item>
+    
+      <item>
+        <title>Review: Malicious BGP Hijacks : Appearances Can Be Deceiving</title>
+        <description>&lt;p&gt;The authors mentioned a key idea in the paper:&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;Correlation of suspicious routing events with malicious activities
+is insufficient to evidence harmful BGP hijacks.&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;This arugument just went against the &lt;code&gt;duan2011empirical&lt;/code&gt; paper’s main methodology.&lt;/p&gt;
+
+&lt;h2 id=&quot;system-design&quot;&gt;System Design&lt;/h2&gt;
+
+&lt;p&gt;The authors use all four types of data methods in the design of the system.&lt;/p&gt;
+
+&lt;table&gt;
+  &lt;thead&gt;
+    &lt;tr&gt;
+      &lt;th&gt; &lt;/th&gt;
+      &lt;th style=&quot;text-align: center&quot;&gt;active&lt;/th&gt;
+      &lt;th style=&quot;text-align: right&quot;&gt;passive&lt;/th&gt;
+    &lt;/tr&gt;
+  &lt;/thead&gt;
+  &lt;tbody&gt;
+    &lt;tr&gt;
+      &lt;td&gt;control-plane&lt;/td&gt;
+      &lt;td style=&quot;text-align: center&quot;&gt;RIR&lt;/td&gt;
+      &lt;td style=&quot;text-align: right&quot;&gt;RIPE BGP Updates&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td&gt;data-plane&lt;/td&gt;
+      &lt;td style=&quot;text-align: center&quot;&gt;SpamTrap&lt;/td&gt;
+      &lt;td style=&quot;text-align: right&quot;&gt;Munich’s Scientific Network&lt;/td&gt;
+    &lt;/tr&gt;
+  &lt;/tbody&gt;
+&lt;/table&gt;
+
+&lt;p&gt;&lt;a href=&quot;http://i.imgur.com/CEYjKdA.png&quot;&gt;&lt;img src=&quot;http://i.imgur.com/CEYjKdA.png&quot; alt=&quot;arch&quot; /&gt;&lt;/a&gt;&lt;/p&gt;
+
+&lt;h2 id=&quot;benign-moas&quot;&gt;Benign MOAS&lt;/h2&gt;
+
+&lt;p&gt;The authors defined the benign MOAS as&lt;/p&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;multiple origins of a prefix share a direct AS-level link&lt;/li&gt;
+  &lt;li&gt;uptime of the prefix is larger than a threshold T&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;They found out that a lot of the “hijacks” or malicious MOAS are actually benign or unable to be classified.&lt;/p&gt;
+
+&lt;p&gt;Bib entry:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;@article{vervier2014malicious,
+    author = {Vervier, Pierre-antoine and Jacquemart, Quentin and Schlamp, Johann and Thonnard, Olivier and Carle, Georg and Urvoy-keller, Guillaume and Biersack, Ernst and Dacier, Marc},
+    isbn = {9781479920037},
+    pages = {890--895},
+    title = ,
+    year = {2014}
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+</description>
+        <pubDate>Fri, 28 Aug 2015 00:00:00 -0500</pubDate>
+        <link>http://mwzhang.com/reviews/2015/08/vervier2014malicious.html</link>
+        <guid isPermaLink="true">http://mwzhang.com/reviews/2015/08/vervier2014malicious.html</guid>
+        
+        <category>BGP</category>
+        
+        <category>hijack</category>
+        
+        <category>attack</category>
+        
+        
+        <category>paper review</category>
+        
+      </item>
+    
+      <item>
+        <title>Review: Losing Control of the Internet: Using the Data Plane to Attack the Control Plane</title>
+        <description>&lt;h2 id=&quot;key-idea&quot;&gt;Key idea&lt;/h2&gt;
+
+&lt;p&gt;The BGP routers are vulnerable to Coordinate Croos Plane Session Termination (CXPST) attack.
+The vulnerability is based on the fact that the control-plane and data-plane use the same medium.
+A flooded medium could jam the control-plane messages and trigger the connected router to believe that the BGP sessions has failed.&lt;/p&gt;
+
+&lt;p&gt;The attackers could explote the vulnerability to disconnect a pair of routers.
+The disconnected routers will thus generate a surge of BGP updates
+that will spread across the Internet’s core routers.&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;In this paper we show how an adversary can attack multiple BGP sessions simultaneously
+and measure the impact these session failures have on the control plane of the Internet.
+We directly simulate the BGP activity resulting from this attack
+and compute the impact those messages have on router processing loads.
+Through simulations we show that botnets on the order of 250, 000 nodes
+can increase processing delays from orders of microseconds to orders of hours.&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;Key tasks for CXPST to work:&lt;/p&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;select correct BGP session to maximize the number of BGP updates it will genreate.&lt;/li&gt;
+  &lt;li&gt;direct traffic to the target link.&lt;/li&gt;
+  &lt;li&gt;minimize the impact of falp dampening mechanisms on the attack.&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;&lt;a href=&quot;http://i.imgur.com/OKvQD5b.png&quot;&gt;&lt;img src=&quot;http://i.imgur.com/OKvQD5b.png&quot; alt=&quot;topo&quot; /&gt;&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;The paper is still vague about how they could actually direct the traffic to the target link.
+The evaluation is also done in simulation, which could be impractical in real-world cases.&lt;/p&gt;
+
+&lt;p&gt;Bib entry:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;@article{schuchard2010losing,
+    author = {Schuchard, Max and Mohaisen, Abedelaziz and Kune, Denis Foo and Hopper, Nicholas and Kim, Yongdae and Vasserman, Eugene Y},
+    isbn = {9781450302449},
+    journal = {Proceedings of the 17th \ldots},
+    pages = {726--728},
+    title = ,
+    url = {http://dl.acm.org/citation.cfm?id=1866411},
+    year = {2010}
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+</description>
+        <pubDate>Fri, 28 Aug 2015 00:00:00 -0500</pubDate>
+        <link>http://mwzhang.com/reviews/2015/08/schuchard2010losing.html</link>
+        <guid isPermaLink="true">http://mwzhang.com/reviews/2015/08/schuchard2010losing.html</guid>
+        
+        <category>BGP</category>
+        
+        <category>attack</category>
+        
+        
+        <category>paper review</category>
+        
+      </item>
+    
+      <item>
+        <title>Review: Concurrent Prefix Hijacks : Occurrence and Impacts</title>
+        <description>&lt;h2 id=&quot;key-obseravation&quot;&gt;Key Obseravation&lt;/h2&gt;
+
+&lt;p&gt;&lt;strong&gt;Simutaneous originations of prefixes of many other networks is suspicious.&lt;/strong&gt;&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;But when a network simultaneously originates prefixes of many other networks,
+it is highly likely to be a real hijack
+since operational arrangements with many different networks
+are unlikely to take effect at the same time.&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;h2 id=&quot;methodology&quot;&gt;Methodology&lt;/h2&gt;
+
+&lt;p&gt;The first keep track of the &lt;strong&gt;origin changes&lt;/strong&gt; from any single monitor on the Internet.
+Then it compile the results from many monitors together to form a global view of the origin changes.&lt;/p&gt;
+
+&lt;p&gt;Then it will estimate the legitimate changes, and rule them out from the dataset.
+The authors considered the following cases legitimate changes:&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;&lt;strong&gt;stable AS set&lt;/strong&gt;:
+  the set of long-lived origin ASes for each prefix&lt;/li&gt;
+  &lt;li&gt;&lt;strong&gt;related set&lt;/strong&gt;:
+  the ASes that announces subprefixes or the ASes that are the direct provider of the origin AS&lt;/li&gt;
+  &lt;li&gt;&lt;strong&gt;large-IXP&lt;/strong&gt;:
+  the ASes that are among large-IXP collaborations are also considered legitimate origins.&lt;/li&gt;
+  &lt;li&gt;&lt;strong&gt;same organization&lt;/strong&gt;:
+  the ASes that are from the same organizations.
+  the data is obtained from WHOIS database.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;The last step is then to assign a offensive value for each AS:
+&lt;strong&gt;the ASes that are not in legitimate set but still announcing the prefixes are assigned with higher offensive value&lt;/strong&gt;.&lt;/p&gt;
+
+&lt;h2 id=&quot;validation&quot;&gt;Validation&lt;/h2&gt;
+
+&lt;p&gt;The validation of this work is done by sending massive emails (582 in total).&lt;/p&gt;
+
+&lt;p&gt;Bib entry:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;@article{khare2012concurrent,
+    author = {Khare, Varun and Ju, Qing and Zhang, Beichuan},
+    isbn = {9781450317054},
+    pages = {29--35},
+    title = {Concurrent Prefix Hijacks : Occurrence and Impacts},
+    year = {2012}
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+</description>
+        <pubDate>Fri, 28 Aug 2015 00:00:00 -0500</pubDate>
+        <link>http://mwzhang.com/reviews/2015/08/khare2012concurrent.html</link>
+        <guid isPermaLink="true">http://mwzhang.com/reviews/2015/08/khare2012concurrent.html</guid>
+        
+        <category>BGP</category>
+        
+        <category>attack</category>
+        
+        <category>hijack</category>
+        
+        
+        <category>paper review</category>
+        
+      </item>
+    
+      <item>
+        <title>Review: Securing BGP - A Literature Survey</title>
+        <description>&lt;h2 id=&quot;bgp-threat-model&quot;&gt;BGP Threat Model&lt;/h2&gt;
+
+&lt;p&gt;The BGP theats can be categorized by asking the following questions:&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;How do we talk? – the TCP channel security&lt;/li&gt;
+  &lt;li&gt;Who am I talking to? – the identity verification&lt;/li&gt;
+  &lt;li&gt;What are you saying? – the message integrity&lt;/li&gt;
+  &lt;li&gt;Should I believe you? – the trust model&lt;/li&gt;
+  &lt;li&gt;How recent is your info still valid? – TTL for your messages&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;These questsions essentially includes all the aspects that a communication between 
+two BGP routers would have.
+If we could secure all of the aspects, 
+we are then on the pretty secure side of the war.&lt;/p&gt;
+
+&lt;p&gt;However, the design of BGP does not take these aspects into consideration,
+and thus creates a set of serious problems.
+The consequences include the capability for the attackers to:&lt;/p&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;eavesdrop on the Internet traffic&lt;/li&gt;
+  &lt;li&gt;conduct denial of service using invalid messages&lt;/li&gt;
+  &lt;li&gt;potentially masquerade different entities on the Internet&lt;/li&gt;
+  &lt;li&gt;steal unused addresses for malicious purposes&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;Years of efforts has been devoted to secure the BGP and here are some apporaches.&lt;/p&gt;
+
+&lt;h2 id=&quot;securing-bgp&quot;&gt;Securing BGP&lt;/h2&gt;
+
+&lt;p&gt;Approaches:&lt;/p&gt;
+
+&lt;h3 id=&quot;securing-bgp-operations&quot;&gt;Securing BGP Operations&lt;/h3&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;GTSM&lt;/li&gt;
+  &lt;li&gt;IPSec&lt;/li&gt;
+  &lt;li&gt;MD5 signature&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3 id=&quot;securing-bgp-messages&quot;&gt;Securing BGP Messages&lt;/h3&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;Out of band: DNS or IRV&lt;/li&gt;
+  &lt;li&gt;S-BGP, BGPSec&lt;/li&gt;
+  &lt;li&gt;soBGP&lt;/li&gt;
+  &lt;li&gt;psBGP&lt;/li&gt;
+  &lt;li&gt;IRV&lt;/li&gt;
+  &lt;li&gt;chained hash function&lt;/li&gt;
+  &lt;li&gt;SPV&lt;/li&gt;
+  &lt;li&gt;signature amortisation and aggregate signatures&lt;/li&gt;
+  &lt;li&gt;path stability&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3 id=&quot;securing-data-plane&quot;&gt;Securing data plane&lt;/h3&gt;
+
+&lt;p&gt;Issues are that Mao et al. [143] found that up to 8% of the routes advised through control plane channel
+do not match the data plane path that the traffic actually took.
+Several approaches has been devoted on securing the data-plane security of BGP:
+* &lt;em&gt;secure traceroute&lt;/em&gt;
+* &lt;em&gt;Faith&lt;/em&gt;
+* &lt;em&gt;Listen and Whisper&lt;/em&gt;&lt;/p&gt;
+
+&lt;h2 id=&quot;deployment-status&quot;&gt;Deployment Status&lt;/h2&gt;
+
+&lt;p&gt;The figure below shows the depoyment status of the existing BGP security approaches.
+3 out of 12 approaches has been implemented, and 2 of them were actually deployed.&lt;/p&gt;
+
+&lt;p&gt;&lt;a href=&quot;http://i.imgur.com/MOWnd51.png&quot;&gt;&lt;img src=&quot;http://i.imgur.com/MOWnd51.png&quot; alt=&quot;deployment&quot; /&gt;&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;Bib entry:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;@article{huston2011securing,
+    author = {Huston, Geoff and Rossi, Mattia and Armitage, Grenville},
+    issn = {1553-877X},
+    journal = {IEEE Communications Surveys \&amp;amp; Tutorials},
+    keywords = {BGP,BGP security,Computer Network Protocols,Inter-domain routing security,routing},
+    number = {2},
+    pages = {199--222},
+    title = ,
+    volume = {13},
+    year = {2011}
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+</description>
+        <pubDate>Fri, 28 Aug 2015 00:00:00 -0500</pubDate>
+        <link>http://mwzhang.com/reviews/2015/08/huston2011securing.html</link>
+        <guid isPermaLink="true">http://mwzhang.com/reviews/2015/08/huston2011securing.html</guid>
+        
+        <category>BGP</category>
+        
+        <category>security</category>
+        
+        
+        <category>paper review</category>
+        
+        <category>bgp</category>
+        
+      </item>
+    
+      <item>
+        <title>Review: An empirical study of behavioral characteristics of spammers: Findings and implications</title>
+        <description>&lt;h2 id=&quot;key-idea&quot;&gt;Key Idea&lt;/h2&gt;
+
+&lt;p&gt;This paper analyzes the charasteristics of the spammers.
+The results include a pretty interesting fact that the spammers use
+BGP updates to steal IP addresses to send spams.&lt;/p&gt;
+
+&lt;h2 id=&quot;findings&quot;&gt;Findings&lt;/h2&gt;
+
+&lt;p&gt;The behaviors of spammers can help develop the &lt;strong&gt;content-independent&lt;/strong&gt; anti-spam techniques.
+This type of techniques is more resistent to the variantion of the spams
+and potentially be more accurate than identifying spams through only the content of the messages.&lt;/p&gt;
+
+&lt;p&gt;The authors developed a set of &lt;strong&gt;metrics&lt;/strong&gt; to assess the characteristics of the spammers.
+The metrics include:&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;&lt;strong&gt;spam/non-spam ratios of servers:&lt;/strong&gt;
+  the majority of the servers are either spam-only or non-spam-only.
+  the mixed type of servers are rare.&lt;/li&gt;
+  &lt;li&gt;&lt;strong&gt;statistics of messages across different spammers:&lt;/strong&gt;
+  most servers only send a very small amount of spam emails per day
+  (less than 10 emails per day is considered small amount)&lt;/li&gt;
+  &lt;li&gt;&lt;strong&gt;arrival patterns of the spam emails across the IP spaces:&lt;/strong&gt;
+  most spam emails were sent from a few /8 IP blocks&lt;/li&gt;
+  &lt;li&gt;**number of mail servers in different networks: **
+  86% of the networks have less than 10 spam servers&lt;/li&gt;
+  &lt;li&gt;&lt;strong&gt;active duration of the spam networks:&lt;/strong&gt;
+  85% of the spam networks were active for less than 3 days before they went dark&lt;/li&gt;
+  &lt;li&gt;&lt;strong&gt;correlation with BGP updtes:&lt;/strong&gt;
+  the spam emails were sent soon after the short-lived BGP updates&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;Bib entry:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;@article{duan2011empirical,
+    author = {Duan, Zhenhai and Gopalan, Kartik and Yuan, Xin},
+    journal = {Computer Communications},
+    number = {14},
+    pages = {1764--1776},
+    publisher = {Elsevier B.V.},
+    title = ,
+    url = {http://dx.doi.org/10.1016/j.comcom.2011.03.015},
+    volume = {34},
+    year = {2011}
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+</description>
+        <pubDate>Fri, 28 Aug 2015 00:00:00 -0500</pubDate>
+        <link>http://mwzhang.com/reviews/2015/08/duan2011empirical.html</link>
+        <guid isPermaLink="true">http://mwzhang.com/reviews/2015/08/duan2011empirical.html</guid>
+        
+        <category>BGP</category>
+        
+        <category>spammer</category>
+        
+        <category>attack</category>
+        
+        
+        <category>paper review</category>
+        
+      </item>
+    
+      <item>
+        <title>Review: On evaluating BGP routing stress attack</title>
+        <description>&lt;p&gt;This paper introduce a new attack inspired from synchronization and resonance in complex system.
+The attack is essentially exaust router’s storage processing power and storage capacity,
+and cause the routers to restart and reannounce its learned RIB table.
+By &lt;strong&gt;carefully select target routers to attack&lt;/strong&gt;, the resonance effect could cause a globally flood of BGP announcements.&lt;/p&gt;
+
+&lt;h2 id=&quot;evaluation-by-simulation&quot;&gt;Evaluation by Simulation&lt;/h2&gt;
+
+&lt;p&gt;The method and topology for simulation is shown in the figures below.&lt;/p&gt;
+
+&lt;p&gt;&lt;a href=&quot;http://i.imgur.com/nRs9YhL.png&quot;&gt;&lt;img src=&quot;http://i.imgur.com/nRs9YhL.png&quot; alt=&quot;topo&quot; /&gt;&lt;/a&gt;
+&lt;a href=&quot;http://i.imgur.com/C6AhH7Q.png&quot;&gt;&lt;img src=&quot;http://i.imgur.com/C6AhH7Q.png&quot; alt=&quot;method&quot; /&gt;&lt;/a&gt;&lt;/p&gt;
+
+&lt;h2 id=&quot;cascading-failure&quot;&gt;Cascading Failure&lt;/h2&gt;
+
+&lt;p&gt;If one AS fails, its neighbors need to withdraw all the routes learned from the failed AS.
+The ripple effects will cause a large amount of withdrawal and announcements.&lt;/p&gt;
+
+&lt;p&gt;Bib entry:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;@article{deng2010evaluating,
+    author = {Deng, Wenping and Zhu, Peidong and Lu, Xicheng and Plattner, Bernhard},
+    issn = {17962021},
+    journal = {Journal of Communications},
+    number = {1},
+    pages = {13--22},
+    title = {On evaluating BGP routing stress attack},
+    volume = {5},
+    year = {2010}
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+</description>
+        <pubDate>Fri, 28 Aug 2015 00:00:00 -0500</pubDate>
+        <link>http://mwzhang.com/reviews/2015/08/deng2010evaluating.html</link>
+        <guid isPermaLink="true">http://mwzhang.com/reviews/2015/08/deng2010evaluating.html</guid>
+        
+        <category>BGP</category>
+        
+        <category>attack</category>
+        
+        
+        <category>paper review</category>
+        
+      </item>
+    
+      <item>
+        <title>Review: ASWatch - An AS Reputation System to Expose Bulletproof Hosting ASes</title>
+        <description>&lt;p&gt;This paper introduces ASWatch,
+a control-plane passive monitoring system that can identify malicious autonomous systems (ASes) with high accuracy.
+The system learns features of ASes from the BGP updates and
+defines normality using statistic features.&lt;/p&gt;
+
+&lt;h2 id=&quot;malicious-and-legitimate-ases&quot;&gt;Malicious and Legitimate ASes&lt;/h2&gt;
+
+&lt;p&gt;The authors define the &lt;strong&gt;malicious ASes&lt;/strong&gt; as those who are managed by cyber-criminals,
+and with a main purpose of supporting illicit network activities.
+The activities include but not limited as phishing, malware distribution, botnets, spamming etc.
+The authors also define the term &lt;strong&gt;malicious AS relation&lt;/strong&gt;, 
+as the relationship between a malicious AS and its “masking ASes”,
+i.e. the providers of the malicious ASes.&lt;/p&gt;
+
+&lt;p&gt;The authors define the &lt;strong&gt;legitiamte ASes&lt;/strong&gt; as those to provide legitimate Internet services.
+Note that a legitimate AS could also be abused for malicious activities, 
+but the authors consider those cases rare situations and not treat the ASes as malicious.&lt;/p&gt;
+
+&lt;p&gt;The main goal of this paper is to correctly identify the malicious ASes,
+and separate them from the legitimate ASes.
+The authors use the top 1,000 Alexa websites’ ASes as a ground truth for legitimate ASes.&lt;/p&gt;
+
+&lt;h2 id=&quot;methodology&quot;&gt;Methodology&lt;/h2&gt;
+
+&lt;p&gt;The system architecture is shown below.
+ASWatch has a typical training and operating cycle of a monitoring system.&lt;/p&gt;
+
+&lt;p&gt;During the training duration,
+ASWatch will use the ground truth knowledge and the existing relationship data 
+to extract &lt;strong&gt;labeled feature vectors&lt;/strong&gt; for a supervised statistical training.
+The trained model will then be used to identify malicious ASes.&lt;/p&gt;
+
+&lt;p&gt;During the operational phase, the ASWatch takes in a sliding window of BGP snapshots,
+and using the data to calculate the corresponding features vectors.
+Through the comparison of the feature vectors with the learned model,
+ASWatch can give out a &lt;strong&gt;bad reputation score&lt;/strong&gt;.
+A malicious AS is identified if the bad reputation score is higher than 90%
+during the sliding window.&lt;/p&gt;
+
+&lt;p&gt;&lt;a href=&quot;http://i.imgur.com/vEk3BCv.png&quot;&gt;&lt;img src=&quot;http://i.imgur.com/vEk3BCv.png&quot; alt=&quot;architecture&quot; /&gt;&lt;/a&gt;&lt;/p&gt;
+
+&lt;h2 id=&quot;results&quot;&gt;Results&lt;/h2&gt;
+
+&lt;p&gt;The detection false positive rate was kept around 5%, 
+which the author argue was a pretty good result.&lt;/p&gt;
+
+&lt;p&gt;&lt;a href=&quot;http://i.imgur.com/9JuNyCe.png&quot;&gt;&lt;img src=&quot;http://i.imgur.com/9JuNyCe.png&quot; alt=&quot;false positive&quot; /&gt;&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;Here are some main results:&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;accuracy ~93.3%&lt;/li&gt;
+  &lt;li&gt;three years’ evaluation revealed 72% true positive&lt;/li&gt;
+  &lt;li&gt;around 50 to 60 days detection before the public media&lt;/li&gt;
+  &lt;li&gt;re-wiring features are the most important
+    &lt;ul&gt;
+      &lt;li&gt;re-wiring features represents the &lt;strong&gt;instability frequency&lt;/strong&gt; of ASes&lt;/li&gt;
+      &lt;li&gt;using only re-wiring features have around the same result&lt;/li&gt;
+      &lt;li&gt;without re-wiring feature, the accuracy dropped dramatically&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;the results are not sensitive to the parameter tuning&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;Compare to BGP Ranking, ASWatch achieves much better results.&lt;/p&gt;
+
+&lt;p&gt;&lt;a href=&quot;http://i.imgur.com/wa981ZW.png&quot;&gt;&lt;img src=&quot;http://i.imgur.com/wa981ZW.png&quot; alt=&quot;bgpranking&quot; /&gt;&lt;/a&gt;&lt;/p&gt;
+
+&lt;h2 id=&quot;conclusion&quot;&gt;Conclusion&lt;/h2&gt;
+
+&lt;p&gt;ASWatch serves as a &lt;strong&gt;ranking system for ASes&lt;/strong&gt;,
+uses &lt;strong&gt;passive control-plane&lt;/strong&gt; monitoring data,
+relies on &lt;strong&gt;re-wiring features&lt;/strong&gt; to identify malicious ASes.&lt;/p&gt;
+
+&lt;p&gt;Bib entry:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;@inproceedings{konte2015aswatch,
+    title={ASwatch: An AS Reputation System to Expose Bulletproof Hosting ASes},
+    author={Konte, Maria and Perdisci, Roberto and Feamster, Nick},
+    booktitle={Proceedings of the 2015 ACM Conference on Special Interest Group on Data Communication},
+    pages={625--638},
+    year={2015},
+    organization={ACM}
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+</description>
+        <pubDate>Tue, 25 Aug 2015 00:00:00 -0500</pubDate>
+        <link>http://mwzhang.com/reviews/2015/08/knote2015aswatch.html</link>
+        <guid isPermaLink="true">http://mwzhang.com/reviews/2015/08/knote2015aswatch.html</guid>
+        
+        <category>bgp</category>
+        
+        <category>reputation system</category>
+        
+        <category>bulletproof</category>
+        
+        
+        <category>paper review</category>
+        
+      </item>
+    
+  </channel>
+</rss>
